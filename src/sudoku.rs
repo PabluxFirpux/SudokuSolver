@@ -14,6 +14,10 @@ impl Sudoku {
         cell.set_value(value);
     }
 
+    pub fn get_size(&mut self) -> u32 {
+        self.size
+    }
+
     pub fn print_board(&mut self) {
         for i in 0..self.size {
             if i == 3 || i == 6{
