@@ -47,7 +47,14 @@ pub fn solve(mut sudoku: Sudoku) {
         }
         last_changes = changes;
         changes = apply_shadows(&mut sudoku, shadows)+last_changes;
-
+    }
+    for _ in 0..200 {
+        let mut shadows = Vec::new();
+        for i in 1..=9{
+            shadows.push(get_shadow(i, &mut sudoku));
+        }
+        last_changes = changes;
+        changes = apply_shadows(&mut sudoku, shadows)+last_changes;
     }
     sudoku.print_board();
 }
