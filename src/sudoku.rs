@@ -16,7 +16,14 @@ impl Sudoku {
 
     pub fn print_board(&mut self) {
         for i in 0..self.size {
+            if i == 3 || i == 6{
+                println!(" ---------------------")
+            }
             for j in 0..self.size {
+                print!(" ");
+                if j == 3 || j == 6{
+                    print!("| ");
+                }
                 print!("{}", self.board[i as usize][j as usize].value)
             }
             println!();
