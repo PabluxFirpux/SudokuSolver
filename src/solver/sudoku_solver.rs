@@ -1,3 +1,4 @@
+use std::process::exit;
 use crate::sudoku::Sudoku;
 
 
@@ -31,7 +32,7 @@ impl Shadow {
 pub fn solve(mut sudoku: Sudoku) {
     println!("Unsolved sudoku:");
     sudoku.print_board();
-    println!("===========================");
+    println!("=======================");
     println!("Solved sudoku:");
     let mut changes = 0;
     let mut last_changes = 0;
@@ -48,15 +49,56 @@ pub fn solve(mut sudoku: Sudoku) {
         last_changes = changes;
         changes = apply_shadows(&mut sudoku, shadows)+last_changes;
     }
-    for _ in 0..200 {
-        let mut shadows = Vec::new();
-        for i in 1..=9{
-            shadows.push(get_shadow(i, &mut sudoku));
-        }
-        last_changes = changes;
-        changes = apply_shadows(&mut sudoku, shadows)+last_changes;
+    if sudoku.is_done() && sudoku.get_solved() {
+        sudoku.print_board();
+        return;
+    } else {
+        recursive_sudoku_solver(sudoku.clone());
     }
-    sudoku.print_board();
+}
+
+fn recursive_sudoku_solver(mut sudoku: Sudoku) {
+    if sudoku.get_invalid() {
+        return;
+    }
+    if sudoku.is_done() {
+        if sudoku.get_solved() {
+            sudoku.print_board();
+            exit(0);
+            return;
+        } else {
+            return;
+        }
+    }
+    let mut sudoku = sudoku.clone();
+    let empty = sudoku.get_empty_cells();
+    for cell in empty {
+        for i in 1..=9{
+            let mut sudoku = sudoku.clone();
+            sudoku.set_cell(cell.x_pos, cell.y_pos, i);
+            let mut changes = 0;
+            let mut last_changes = 0;
+            let mut shadows = Vec::new();
+            for i in 1..=9{
+                shadows.push(get_shadow(i, &mut sudoku));
+            }
+            changes = apply_shadows(&mut sudoku, shadows);
+            for _ in 0..20 {
+                let mut shadows = Vec::new();
+                for i in 1..=9{
+                    shadows.push(get_shadow(i, &mut sudoku));
+                }
+                last_changes = changes;
+                changes = apply_shadows(&mut sudoku, shadows)+last_changes;
+                if sudoku.is_done() {
+                    break;
+                }
+            }
+            if !sudoku.get_invalid() {
+                recursive_sudoku_solver(sudoku);
+            }
+        }
+    }
 }
 
 fn apply_shadows(sudoku: &mut Sudoku, shadows: Vec<Shadow>) -> u32 {
@@ -138,7 +180,7 @@ fn get_shadow(num: u32, sudoku: &mut Sudoku) -> Shadow {
     let mut shadow_board = Vec::with_capacity(9);
     for _ in 0..9 {
         let mut line = Vec::with_capacity(9);
-        for j in 0..9 {
+        for _ in 0..9 {
             line.push(true);
         }
         shadow_board.push(line);

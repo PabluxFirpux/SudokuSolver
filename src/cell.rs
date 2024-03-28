@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Cell {
     pub value: u32,
     pub x_pos: u32,

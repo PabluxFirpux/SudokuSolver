@@ -1,6 +1,7 @@
+use std::collections::HashMap;
 use crate::cell::Cell;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Sudoku {
     size: u32,
     board: Vec<Vec<Cell>>
@@ -16,6 +17,84 @@ impl Sudoku {
 
     pub fn get_size(&mut self) -> u32 {
         self.size
+    }
+
+    pub fn is_done(&self) -> bool {
+        for row in &self.board{
+            for cell in row {
+                if cell.value == 0 {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    pub fn get_empty_cells(&self) -> Vec<&Cell> {
+        let mut vec = Vec::new();
+        for row in &self.board {
+            for cell in row {
+                if cell.value == 0{
+                    vec.push(cell);
+                }
+            }
+        }
+
+        vec
+    }
+
+    pub fn get_solved(&mut self) -> bool {
+        for i in 1..=9 {
+            if !is_group_correct(self.get_column(i)) {
+                return false;
+            }
+
+            let mut vec = Vec::new();
+            for cell in self.get_row(i) {
+                vec.push(cell);
+            }
+            if !is_group_correct(vec) {
+                return false;
+            }
+
+            let mut vec = Vec::new();
+            for row in self.get_square(i) {
+                for cell in row {
+                    vec.push(cell);
+                }
+            }
+            if !is_group_correct(vec) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    pub fn get_invalid(&mut self) -> bool {
+        for i in 1..=9 {
+            if is_group_invalid(self.get_column(i)) {
+                return true;
+            }
+
+            let mut vec = Vec::new();
+            for cell in self.get_row(i) {
+                vec.push(cell);
+            }
+            if is_group_invalid(vec) {
+                return true;
+            }
+
+            let mut vec = Vec::new();
+            for row in self.get_square(i) {
+                for cell in row {
+                    vec.push(cell);
+                }
+            }
+            if is_group_invalid(vec) {
+                return true;
+            }
+        }
+        return false;
     }
 
     pub fn print_board(&mut self) {
@@ -89,4 +168,41 @@ fn make_board(size: u32) -> Vec<Vec<Cell>> {
         board.push(line);
     }
     board
+}
+
+fn is_group_correct(cells: Vec<&Cell>) -> bool {
+    if cells.len() != 9 {
+        return false;
+    }
+    let mut vec = Vec::new();
+
+    for cell in cells {
+        if vec.contains(&cell.value) {
+            return false;
+        } else {
+            vec.push(cell.value);
+        }
+    }
+
+    return true;
+}
+
+fn is_group_invalid(cells: Vec<&Cell>) -> bool {
+    if cells.len() != 9 {
+        return true;
+    }
+    let mut vec = Vec::new();
+
+    for cell in cells {
+        if cell.value == 0 {
+            continue;
+        }
+        if vec.contains(&cell.value) {
+            return true;
+        } else {
+            vec.push(cell.value);
+        }
+    }
+
+    return false;
 }

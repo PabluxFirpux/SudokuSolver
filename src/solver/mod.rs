@@ -3,7 +3,7 @@ use crate::sudoku::Sudoku;
 mod sudoku_solver;
 
 pub fn solve(mut sudoku: Sudoku) {
-    populate1(&mut sudoku);
+    populate2(&mut sudoku);
     sudoku_solver::solve(sudoku);
 }
 
